@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>학급 상담 관찰 기록장</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f5fb;
+      --card: #ffffff;
+      --line: #e4e1f0;
+      --line-strong: #cfcae4;
+      --text: #1f1d2b;
+      --sub: #45425a;
+      --muted: #5f5c74;
+      --brand: #5a43d1;
+      --brand-dark: #4532b0;
+      --brand-soft: #efecfc;
+      --brand-softer: #f7f5fe;
+      --ok: #136c42;
+      --ok-bg: #e6f5ec;
+      --warn: #8a4f00;
+      --warn-bg: #fff3dd;
+      --danger: #b42318;
+      --danger-bg: #fdecea;
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+      word-break: keep-all; overflow-wrap: anywhere;
+    }
+    h1, h2, h3, p { margin: 0; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    a { color: var(--brand); }
+    .hidden { display: none !important; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* Header */
+    .app-header { background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 30; }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand h1 { font-size: 20px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .logo { width: 38px; height: 38px; border-radius: 11px; background: rgba(255,255,255,.18); display: grid; place-items: center; flex: none; }
+    .head-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+    .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.4); background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; }
+    .icon-btn:hover { background: rgba(255,255,255,.26); }
+    .back-btn { height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 10px; border-radius: 10px; border: 0; background: rgba(255,255,255,.16); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; }
+    .back-btn:hover { background: rgba(255,255,255,.26); }
+    .badge { display: inline-flex; align-items: center; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); }
+    .badge-wait { background: rgba(255,255,255,.18); color: #fff; }
+
+    main.wrap { padding-top: 24px; padding-bottom: 64px; }
+
+    /* Cards & layout */
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+    .card-head { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .card-head h2 { font-size: 18px; font-weight: 700; }
+    .desc { font-size: 14px; color: var(--muted); }
+    .section { padding: 18px 22px; border-bottom: 1px solid var(--line); }
+    .section:last-child { border-bottom: 0; }
+    .grid-main { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 20px; align-items: start; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .stack { display: grid; gap: 20px; align-content: start; }
+    .sticky { position: sticky; top: 88px; }
+
+    /* Form */
+    .field { display: grid; gap: 6px; }
+    .label { font-size: 15px; font-weight: 700; }
+    .label .opt { font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 4px; }
+    .label .req { color: var(--danger); margin-left: 2px; }
+    .input { width: 100%; min-width: 0; min-height: 48px; padding: 10px 14px; font-size: 16px; background: #fff; border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm); outline: none; transition: border-color .15s, box-shadow .15s; }
+    .input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(90, 67, 209, .18); }
+    .input::placeholder { color: #8a8799; }
+    textarea.input { min-height: 180px; resize: vertical; line-height: 1.7; }
+    select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235f5c74' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center; }
+    .help { font-size: 14px; color: var(--muted); }
+    .row-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .check { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: var(--sub); cursor: pointer; }
+    .check input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--brand); flex: none; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 10px 18px; border-radius: var(--radius-sm); border: 1.5px solid transparent; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; text-decoration: none; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+    .btn-secondary { background: #fff; color: var(--brand-dark); border-color: var(--line-strong); }
+    .btn-secondary:hover:not(:disabled) { background: var(--brand-softer); border-color: var(--brand); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover:not(:disabled) { background: #8f1c13; }
+    .btn-danger-line { background: #fff; color: var(--danger); border-color: #f1c4bf; }
+    .btn-danger-line:hover:not(:disabled) { background: var(--danger-bg); }
+    .btn-sm { min-height: 40px; padding: 6px 12px; font-size: 14px; }
+    .btn-lg { min-height: 52px; font-size: 17px; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .link-btn { background: none; border: 0; padding: 4px 2px; color: var(--brand); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+    /* Lock screen */
+    .lock-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+    .lock-card { width: 100%; max-width: 460px; background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 12px 40px rgba(31,29,43,.08); padding: 36px 32px; display: grid; gap: 20px; }
+    .lock-top { display: grid; justify-items: center; gap: 10px; text-align: center; }
+    .lock-icon { width: 56px; height: 56px; border-radius: 16px; background: var(--brand); display: grid; place-items: center; }
+    .lock-top h1 { font-size: 23px; }
+    .lock-foot { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+
+    /* Records */
+    .count { font-size: 14px; font-weight: 700; color: var(--brand-dark); background: var(--brand-soft); padding: 2px 10px; border-radius: 999px; }
+    .record-list { display: grid; gap: 12px; }
+    .record { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; }
+    .record-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .record-when { font-size: 14px; font-weight: 700; }
+    .record-content { font-size: 15px; color: var(--sub); white-space: pre-wrap; }
+    .record-note { font-size: 14px; color: var(--brand-dark); background: var(--brand-softer); padding: 6px 10px; border-radius: 8px; white-space: pre-wrap; }
+    .more { justify-self: start; }
+    .tag { font-size: 13px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #f0eff5; color: var(--sub); }
+    .tag-student { background: #e8f0fe; color: #1f4fae; }
+    .tag-parent { background: var(--warn-bg); color: var(--warn); }
+    .empty { text-align: center; padding: 28px 12px; color: var(--muted); font-size: 15px; }
+    .save-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .save-bar .btn { width: 220px; flex: none; }
+
+    /* Settings */
+    .settings { display: flex; gap: 20px; align-items: flex-start; }
+    .side-nav { width: 220px; flex: none; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 10px; display: grid; gap: 4px; position: sticky; top: 88px; }
+    .side-nav button { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 14px; border: 0; border-radius: 10px; background: none; color: var(--sub); font-size: 15px; font-weight: 500; cursor: pointer; text-align: left; }
+    .side-nav button[aria-selected="true"] { background: var(--brand-soft); color: var(--brand-dark); font-weight: 700; }
+    .settings-body { flex: 1; min-width: 0; }
+    .grid-students { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: 20px; align-items: start; }
+    .student-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 22px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .student-item:first-child { border-top: 0; }
+    .student-name { font-size: 16px; font-weight: 700; }
+    .student-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .note-box { background: var(--brand-softer); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--sub); line-height: 1.7; }
+    .notice { border-radius: 12px; padding: 12px 16px; font-size: 15px; line-height: 1.7; }
+    .notice-warn { background: var(--warn-bg); color: #5c3500; border: 1px solid #f2d39c; }
+    .notice-ok { background: var(--ok-bg); color: #0e4f30; border: 1px solid #b9e2c9; }
+    .notice-danger { background: var(--danger-bg); color: #7a1a12; border: 1px solid #f1c4bf; }
+    .check-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .check-item { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .state { flex: none; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; margin-top: 1px; }
+    .state-ok { background: var(--ok-bg); color: var(--ok); }
+    .state-need { background: var(--warn-bg); color: var(--warn); }
+    .check-item b { display: block; font-size: 15px; }
+    .check-item span.d { font-size: 14px; color: var(--muted); }
+    details.step { border: 1px solid var(--line); border-radius: 12px; }
+    details.step + details.step { margin-top: 10px; }
+    details.step summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px 14px; font-size: 16px; font-weight: 700; }
+    details.step summary::-webkit-details-marker { display: none; }
+    details.step summary::after { content: '열기'; margin-left: auto; font-size: 13px; font-weight: 500; color: var(--muted); }
+    details.step[open] summary::after { content: '닫기'; }
+    .num { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 14px; display: grid; place-items: center; flex: none; }
+    .step-body { padding: 0 16px 16px 54px; font-size: 15px; color: var(--sub); }
+    .step-body ol, .step-body ul { margin: 6px 0; padding-left: 20px; }
+    .step-body li { margin: 4px 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; background: #f1eff8; color: #3a2d8f; padding: 1px 6px; border-radius: 5px; }
+    pre.code-view { margin: 10px 0 0; max-height: 320px; overflow: auto; background: #1f1d2b; color: #ece9f7; font-size: 13px; line-height: 1.5; padding: 14px; border-radius: 10px; white-space: pre; }
+    .kv { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; flex-wrap: wrap; }
+    .kv:first-child { border-top: 0; }
+
+    /* Modal & toast */
+    .modal-back { position: fixed; inset: 0; background: rgba(23, 20, 40, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+    .modal { width: 100%; max-width: 520px; max-height: calc(100vh - 32px); overflow-y: auto; background: #fff; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,.2); }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 700; }
+    .modal-body { padding: 18px 22px; display: grid; gap: 14px; }
+    .modal-foot { padding: 14px 22px 18px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .choice { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+    .choice input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--brand); flex: none; }
+    .choice b { display: block; font-size: 15px; }
+    .choice span { font-size: 14px; color: var(--muted); }
+    .choice:has(input:checked) { border-color: var(--brand); background: var(--brand-softer); }
+    .choice.danger:has(input:checked) { border-color: var(--danger); background: var(--danger-bg); }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: #23203a; color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 15px; max-width: calc(100vw - 32px); box-shadow: 0 10px 30px rgba(0,0,0,.25); transition: all .25s; z-index: 60; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { background: #8f1c13; }
+
+    @media (max-width: 1023px) {
+      .grid-main, .grid-students { grid-template-columns: 1fr; }
+      .sticky { position: static; }
+    }
+    @media (max-width: 760px) {
+      .settings { flex-direction: column; }
+      .side-nav { width: 100%; position: static; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 12px; }
+      .side-nav button { justify-content: center; height: 44px; }
+      .side-nav svg { display: none; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 0 14px; }
+      main.wrap { padding-top: 14px; }
+      .header-inner { height: 56px; }
+      .brand h1 { font-size: 17px; }
+      .logo { display: none; }
+      #status-badge { display: none; }
+      .back-btn span { display: none; }
+      .back-btn { padding: 0 10px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .section, .card-head { padding-left: 16px; padding-right: 16px; }
+      .save-bar { flex-direction: column; align-items: stretch; }
+      .save-bar .btn { width: 100%; order: -1; }
+      .student-item { padding: 12px 16px; }
+      .student-actions { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .step-body { padding-left: 16px; }
+      .lock-card { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ 잠금 / 처음 설정 화면 ============ -->
+  <section id="view-lock" class="lock-wrap hidden" aria-labelledby="lock-title">
+    <div class="lock-card">
+      <div class="lock-top">
+        <div class="lock-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </div>
+        <h1 id="lock-title">학급 상담 관찰 기록장</h1>
+        <p class="help" id="lock-desc"></p>
+      </div>
+
+      <!-- 연결 전 -->
+      <div id="lock-nourl" class="hidden" style="display:grid;gap:12px">
+        <div class="notice notice-warn">먼저 내 구글 스프레드시트와 연결해야 합니다. 안내에 따라 한 번만 설정하면 됩니다.</div>
+        <button class="btn btn-primary btn-lg" onclick="openSettings('connect')">시트 연결하러 가기</button>
+      </div>
+
+      <!-- 처음: 비밀번호 만들기 -->
+      <form id="lock-init" class="hidden" style="display:grid;gap:14px" onsubmit="handleInit(event)">
+        <div class="field">
+          <label class="label" for="init-pw">새 비밀번호 <span class="opt">8자 이상</span></label>
+          <input id="init-pw" type="password" class="input" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="field">
+          <label class="label" for="init-pw2">비밀번호 확인</label>
+          <input id="init-pw2" type="password" class="input" autocomplete="new-password" minlength="8" required>
+        </div>
+        <label class="check"><input type="checkbox" id="init-agree" required><span>비밀번호를 잊으면 학생 이름을 <b>되살릴 수 없다</b>는 것을 확인했습니다.</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" id="btn-init">비밀번호 만들고 시작하기</button>
+      </form>
+
+      <!-- 잠금 해제 -->
+      <form id="lock-unlock" class="hidden" style="display:grid;gap:14px" onsubmit="handleUnlock(event)">
+        <div class="field">
+          <label class="label" for="unlock-pw">비밀번호</label>
+          <input id="unlock-pw" type="password" class="input" autocomplete="current-password" required>
+        </div>
+        <label class="check"><input type="checkbox" id="unlock-remember"><span>이 기기에서 기억하기 (혼자 쓰는 기기에서만)</span></label>
+        <button type="submit" class="btn btn-primary btn-lg" id="btn-unlock">열기</button>
+      </form>
+
+      <div id="lock-error" class="notice notice-danger hidden" role="alert"></div>
+
+      <div class="lock-foot">
+        <div class="row-between"><span>웹앱 연결</span><span id="lock-conn">확인 중</span></div>
+        <button class="link-btn" style="justify-self:start" onclick="openSettings('connect')">연결 설정 · 안내</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 앱 머리띠 ============ -->
+  <header class="app-header hidden" id="app-header">
+    <div class="wrap header-inner">
+      <div class="brand" id="brand-main">
+        <div class="logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h1>학급 상담 관찰 기록장</h1>
+      </div>
+      <div class="brand hidden" id="brand-settings">
+        <button class="back-btn" onclick="closeSettings()" aria-label="뒤로">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          <span id="back-label">상담 기록으로</span>
+        </button>
+        <h1>설정</h1>
+      </div>
+      <div class="head-actions">
+        <span id="status-badge" class="badge badge-wait">연결 확인 중</span>
+        <button class="icon-btn" id="btn-settings" onclick="openSettings()" aria-label="설정 (학생 관리 · 시트 연결)" title="설정">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-lock" onclick="lockApp()" aria-label="잠그기" title="잠그기">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ 상담 기록 (메인) ============ -->
+  <main class="wrap hidden" id="view-main">
+    <div class="grid-main">
+      <section class="card" aria-labelledby="write-title">
+        <div class="card-head"><h2 id="write-title">상담 기록 작성</h2></div>
+
+        <div class="section field">
+          <div class="row-between">
+            <label class="label" for="student-select">학생</label>
+            <button class="link-btn" onclick="openSettings('students')">학생 추가·수정</button>
+          </div>
+          <select id="student-select" class="input" onchange="onStudentSelect()"></select>
+        </div>
+
+        <div class="section grid-2">
+          <div class="field">
+            <label class="label" for="rec-date">상담 일시</label>
+            <input id="rec-date" type="datetime-local" class="input">
+          </div>
+          <div class="field">
+            <label class="label" for="rec-time">상담 시간 <span class="opt">선택</span></label>
+            <input id="rec-time" class="input" placeholder="예: 20분" maxlength="60">
+          </div>
+          <div class="field">
+            <label class="label" for="rec-target">상담 대상</label>
+            <select id="rec-target" class="input">
+              <option>학생</option>
+              <option>학부모</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label" for="rec-method">상담 방법</label>
+            <select id="rec-method" class="input">
+              <option>대면</option>
+              <option>전화</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section" style="display:grid;gap:14px">
+          <div class="field">
+            <label class="label" for="rec-content">상담 내용</label>
+            <textarea id="rec-content" class="input" placeholder="상담한 주제, 관찰한 사실, 지도 내용을 적어 주세요."></textarea>
+          </div>
+          <div class="field">
+            <label class="label" for="rec-note">비고 · 추후 조치 <span class="opt">선택</span></label>
+            <input id="rec-note" class="input" placeholder="예: 다음 주 학부모 상담 예정">
+          </div>
+        </div>
+
+        <div class="section save-bar">
+          <p class="help">일시·대상·방법·시간과 상담 내용·비고가 이 학생 시트에 한 줄로 저장됩니다.</p>
+          <button class="btn btn-primary btn-lg" id="btn-save" onclick="saveRecord()">저장</button>
+        </div>
+      </section>
+
+      <aside class="card sticky" aria-labelledby="history-title">
+        <div class="card-head">
+          <div>
+            <h2 id="history-title">상담 기록</h2>
+            <p class="desc" id="history-desc">학생을 선택하면 기록이 보입니다.</p>
+          </div>
+          <span class="count" id="history-count">0건</span>
+        </div>
+        <div class="section">
+          <div id="history-list" class="record-list"><div class="empty">학생을 선택해 주세요.</div></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ============ 설정 ============ -->
+  <main class="wrap hidden" id="view-settings">
+    <div class="settings">
+      <nav class="side-nav" role="tablist" aria-label="설정 메뉴">
+        <button role="tab" id="tab-students" aria-selected="true" onclick="showSettingsTab('students')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          학생 관리
+        </button>
+        <button role="tab" id="tab-connect" aria-selected="false" onclick="showSettingsTab('connect')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          시트 연결 안내
+        </button>
+      </nav>
+
+      <div class="settings-body">
+        <!-- 학생 관리 -->
+        <div id="panel-students" role="tabpanel" aria-labelledby="tab-students">
+          <div id="students-locked" class="notice notice-warn hidden">학생 관리는 비밀번호로 잠금을 푼 뒤 쓸 수 있습니다.</div>
+          <div class="grid-students" id="students-ui">
+            <section class="card sticky" aria-labelledby="reg-title">
+              <div class="card-head">
+                <div><h2 id="reg-title">학생 등록</h2><p class="desc">이름만 적어도 등록됩니다.</p></div>
+              </div>
+              <form class="section" style="display:grid;gap:14px" onsubmit="handleAddStudent(event)">
+                <div class="field">
+                  <label class="label" for="reg-name">이름 <span class="req">*</span></label>
+                  <input id="reg-name" class="input" required maxlength="40" autocomplete="off" placeholder="예: 김민준">
+                </div>
+                <div class="grid-3">
+                  <div class="field"><label class="label" for="reg-grade">학년</label><input id="reg-grade" class="input" inputmode="numeric" maxlength="10"></div>
+                  <div class="field"><label class="label" for="reg-class">반</label><input id="reg-class" class="input" inputmode="numeric" maxlength="10"></div>
+                  <div class="field"><label class="label" for="reg-number">번호</label><input id="reg-number" class="input" inputmode="numeric" maxlength="10"></div>
+                </div>
+                <button class="btn btn-primary" id="btn-add">학생 등록</button>
+                <p class="note-box">등록하면 <b>학생_S7K2M9</b>처럼 코드 이름의 시트가 만들어지고, 이름은 비밀번호로 암호화되어 저장됩니다.</p>
+              </form>
+            </section>
+
+            <section class="card" aria-labelledby="list-title">
+              <div class="card-head">
+                <h2 id="list-title">학생 목록</h2>
+                <span class="count" id="student-count">0명</span>
+              </div>
+              <div id="student-list"></div>
+              <div class="section" id="hidden-toggle-wrap">
+                <button class="link-btn" id="hidden-toggle" onclick="toggleHidden()"></button>
+                <div id="hidden-list" class="hidden" style="margin-top:8px"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- 시트 연결 안내 -->
+        <div id="panel-connect" role="tabpanel" aria-labelledby="tab-connect" class="hidden">
+          <div class="grid-main">
+            <div class="stack">
+              <section class="card" aria-labelledby="url-title">
+                <div class="card-head"><h2 id="url-title">웹앱 주소 연결</h2></div>
+                <form class="section" style="display:grid;gap:14px" onsubmit="handleSaveUrl(event)">
+                  <div class="field">
+                    <label class="label" for="url-input">웹앱 주소</label>
+                    <input id="url-input" class="input" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+                    <p class="help">배포 후 받은 <code>/exec</code>로 끝나는 주소입니다. 이 기기의 브라우저에만 저장됩니다.</p>
+                  </div>
+                  <div class="btn-row">
+                    <button class="btn btn-primary" id="btn-url">저장하고 연결 테스트</button>
+                    <button type="button" class="btn btn-secondary" onclick="copyCode()">앱스크립트 코드 복사</button>
+                  </div>
+                  <div id="url-result" role="status"></div>
+                </form>
+              </section>
+
+              <section class="card" aria-labelledby="steps-title">
+                <div class="card-head"><h2 id="steps-title">처음 한 번만 하는 설정</h2></div>
+                <div class="section">
+                  <details class="step" open>
+                    <summary><span class="num">1</span>새 스프레드시트 만들기</summary>
+                    <div class="step-body">구글 드라이브에서 <b>새로 만들기 → Google 스프레드시트</b>를 누릅니다. 이름은 자유롭게 정하세요(예: 상담기록 2026). 시트와 제목 행은 앱이 자동으로 만듭니다.</div>
+                  </details>
+                  <details class="step">
+                    <summary><span class="num">2</span>앱스크립트 열기</summary>
+                    <div class="step-body">스프레드시트 위쪽 메뉴에서 <b>확장 프로그램 → Apps Script</b>를 누릅니다. 새 창에 <code>Code.gs</code> 파일이 열립니다.</div>
+                  </details>
+                  <details class="step">
+                    <summary><span class="num">3</span>코드 붙여 넣기</summary>
+                    <div class="step-body">
+                      <ol>
+                        <li>위의 <b>앱스크립트 코드 복사</b>를 누릅니다.</li>
+                        <li><code>Code.gs</code>에 있던 내용을 모두 지우고 붙여 넣습니다.</li>
+                        <li>저장(디스크 모양 아이콘 또는 Ctrl+S)을 누릅니다.</li>
+                      </ol>
+                      <details><summary class="link-btn" style="display:inline">코드 직접 보기</summary><pre class="code-view" id="code-view"></pre></details>
+                    </div>
+                  </details>
+                  <details class="step">
+                    <summary><span class="num">4</span>웹 앱으로 배포</summary>
+                    <div class="step-body">
+                      <ol>
+                        <li>오른쪽 위 <b>배포 → 새 배포</b>를 누릅니다.</li>
+                        <li>톱니바퀴(유형 선택)에서 <b>웹 앱</b>을 고릅니다.</li>
+                        <li><b>다음 사용자 인증 정보로 실행: 나</b></li>
+                        <li><b>액세스 권한이 있는 사용자: 모든 사용자</b></li>
+                        <li><b>배포</b>를 누르고, 권한 요청이 나오면 내 계정으로 허용합니다. ‘확인되지 않은 앱’ 경고가 나오면 <b>고급 → (프로젝트 이름)(으)로 이동</b>을 누릅니다. 직접 만든 스크립트라서 나오는 안내입니다.</li>
+                      </ol>
+                      <p class="help">‘모든 사용자’로 배포해도 비밀번호가 없으면 기록을 읽거나 쓸 수 없습니다. 학생 이름은 암호문으로만 저장됩니다.</p>
+                    </div>
+                  </details>
+                  <details class="step">
+                    <summary><span class="num">5</span>웹앱 주소 넣기</summary>
+                    <div class="step-body">배포가 끝나면 나오는 <b>웹 앱 URL</b>을 복사해 위 ‘웹앱 주소’에 붙여 넣고 <b>저장하고 연결 테스트</b>를 누릅니다. 나중에 주소를 다시 보려면 <b>배포 → 배포 관리</b>에서 확인할 수 있습니다.</div>
+                  </details>
+                  <details class="step">
+                    <summary><span class="num">6</span>비밀번호 정하기</summary>
+                    <div class="step-body">연결에 성공하면 비밀번호를 만드는 화면이 나옵니다. 배포한 뒤 <b>바로</b> 정해 주세요. 처음 비밀번호를 정한 사람이 이 서버의 주인이 됩니다.</div>
+                  </details>
+                </div>
+              </section>
+
+              <section class="card" aria-labelledby="trouble-title">
+                <div class="card-head"><h2 id="trouble-title">문제가 생겼을 때</h2></div>
+                <div class="section" style="display:grid;gap:10px;font-size:15px;color:var(--sub)">
+                  <p><b>연결 테스트가 실패해요</b> — 주소가 <code>/exec</code>로 끝나는지, 배포의 액세스 권한이 ‘모든 사용자’인지 확인하세요.</p>
+                  <p><b>코드를 고쳤는데 그대로예요</b> — 배포 → 배포 관리 → 연필(수정) → 버전 ‘새 버전’ → 배포를 눌러야 반영됩니다. 주소는 바뀌지 않습니다.</p>
+                  <p><b>비밀번호를 잊었어요</b> — 학생 이름을 되살릴 방법은 없습니다. 상담 내용은 시트에 그대로 있습니다. 새로 시작하려면 새 스프레드시트로 1단계부터 다시 설정하세요.</p>
+                  <p><b>다른 컴퓨터에서 쓰고 싶어요</b> — 이 앱을 열고 같은 웹앱 주소를 넣은 뒤 같은 비밀번호로 열면 됩니다.</p>
+                </div>
+              </section>
+            </div>
+
+            <div class="stack sticky">
+              <section class="card" aria-labelledby="checklist-title">
+                <div class="card-head">
+                  <h2 id="checklist-title">설정 체크리스트</h2>
+                  <button class="btn btn-secondary btn-sm" onclick="refreshChecklist(true)">다시 확인</button>
+                </div>
+                <div class="section"><ul class="check-list" id="checklist"></ul></div>
+              </section>
+              <section class="card" aria-labelledby="sheet-title">
+                <div class="card-head"><h2 id="sheet-title">연결된 스프레드시트</h2></div>
+                <div class="section" id="sheet-info"><p class="help">잠금을 풀면 표시됩니다.</p></div>
+              </section>
+              <section class="card">
+                <div class="section" style="display:grid;gap:10px">
+                  <p class="help">이 기기에 저장된 웹앱 주소와 ‘기억하기’ 정보를 지웁니다. 시트의 기록은 지워지지 않습니다.</p>
+                  <button class="btn btn-danger-line btn-sm" style="justify-self:start" onclick="forgetDevice()">이 기기에서 연결 정보 지우기</button>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ 모달 ============ -->
+  <div id="modal-edit" class="modal-back hidden" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <form class="modal" onsubmit="handleEditStudent(event)">
+      <div class="modal-head" id="edit-title">학생 정보 수정</div>
+      <div class="modal-body">
+        <div class="field"><label class="label" for="edit-name">이름 <span class="req">*</span></label><input id="edit-name" class="input" required maxlength="40" autocomplete="off"></div>
+        <div class="grid-3">
+          <div class="field"><label class="label" for="edit-grade">학년</label><input id="edit-grade" class="input" inputmode="numeric" maxlength="10"></div>
+          <div class="field"><label class="label" for="edit-class">반</label><input id="edit-class" class="input" inputmode="numeric" maxlength="10"></div>
+          <div class="field"><label class="label" for="edit-number">번호</label><input id="edit-number" class="input" inputmode="numeric" maxlength="10"></div>
+        </div>
+        <p class="help">학생 ID와 기록 시트는 그대로이므로 기존 기록은 계속 연결됩니다.</p>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit')">취소</button>
+        <button class="btn btn-primary" id="btn-edit">저장</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="modal-delete" class="modal-back hidden" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+    <div class="modal">
+      <div class="modal-head" id="delete-title">학생 삭제</div>
+      <div class="modal-body">
+        <p id="delete-text" style="font-size:16px"></p>
+        <label class="choice"><input type="radio" name="delete-mode" value="hide" checked onchange="onDeleteMode()"><div><b>목록에서만 숨기기 (권장)</b><span>학생 시트와 기록은 그대로 보관됩니다. ‘숨긴 학생’에서 다시 보이게 할 수 있습니다.</span></div></label>
+        <label class="choice danger"><input type="radio" name="delete-mode" value="delete" onchange="onDeleteMode()"><div><b>학생과 기록 모두 삭제</b><span>이 학생의 시트를 지웁니다. 되돌릴 수 없습니다.</span></div></label>
+        <label class="check hidden" id="delete-confirm-wrap"><input type="checkbox" id="delete-confirm"><span>기록이 모두 지워지고 되돌릴 수 없다는 것을 확인했습니다.</span></label>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('modal-delete')">취소</button>
+        <button class="btn btn-danger" id="btn-delete" onclick="confirmDelete()">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="text/plain" id="gs-code">/*__GS_CODE__*/</script>
+  <script>
+    'use strict';
+
+    /* =========================================================
+     * 상태
+     * ========================================================= */
+    var PBKDF2_ITERATIONS = 310000;
+    var LS_URL = 'cl.webAppUrl';
+    var LS_SESSION = 'cl.session';
+
+    var state = {
+      url: '',
+      server: null,          // status 응답
+      keys: null,            // { aesKey, aesRaw, auth }
+      students: [],          // 복호화된 학생 목록
+      records: {},           // 학생ID → 기록 목록
+      recordId: newRecordId(),
+      saving: false,
+      setup: null,           // checkSetup 응답
+      lastTestOk: null,
+      settingsTab: 'students',
+      inSettings: false,
+      editingId: null,
+      deletingId: null,
+      showHidden: false
+    };
+
+    /* =========================================================
+     * 도우미
+     * ========================================================= */
+    function $(id) { return document.getElementById(id); }
+    function show(el, on) { (typeof el === 'string' ? $(el) : el).classList.toggle('hidden', !on); }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    var toastTimer;
+    function toast(msg, isError) {
+      var t = $('toast');
+      t.textContent = msg;
+      t.classList.toggle('error', !!isError);
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { t.classList.remove('show'); }, isError ? 6000 : 3000);
+    }
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+    function newRecordId() {
+      var b = crypto.getRandomValues(new Uint8Array(12));
+      return 'R' + Array.from(b, function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    }
+    function nowLocalInput() {
+      var d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    }
+
+    /* =========================================================
+     * 암호화 (브라우저 안에서만 처리, 비밀번호는 서버로 보내지 않음)
+     * ========================================================= */
+    var enc = new TextEncoder();
+    var dec = new TextDecoder();
+    function b64(bytes) { var s = ''; bytes.forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s); }
+    function unb64(str) { var s = atob(str); var out = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) out[i] = s.charCodeAt(i); return out; }
+    function hex(bytes) { return Array.from(bytes, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+
+    function cryptoReady() { return !!(window.crypto && crypto.subtle && window.TextEncoder); }
+
+    /** 비밀번호 + salt → 이름 암호화 열쇠(앞 32바이트)와 접속 확인 값(뒤 32바이트) */
+    async function deriveKeys(password, saltB64) {
+      var base = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+      var bits = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: unb64(saltB64), iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' }, base, 512));
+      return keysFromRaw(bits.slice(0, 32), hex(bits.slice(32)));
+    }
+    async function keysFromRaw(aesRaw, auth) {
+      var aesKey = await crypto.subtle.importKey('raw', aesRaw, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+      return { aesKey: aesKey, aesRaw: aesRaw, auth: auth };
+    }
+    async function encryptName(name) {
+      var iv = crypto.getRandomValues(new Uint8Array(12));
+      var ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, state.keys.aesKey, enc.encode(name)));
+      return 'v1.' + b64(iv) + '.' + b64(ct);
+    }
+    async function decryptName(cipher) {
+      try {
+        var p = String(cipher).split('.');
+        if (p.length !== 3 || p[0] !== 'v1') return null;
+        var pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(p[1]) }, state.keys.aesKey, unb64(p[2]));
+        return dec.decode(pt);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /* =========================================================
+     * 서버(앱스크립트) 호출
+     * ========================================================= */
+    function AppError(message, code) { this.message = message; this.code = code || ''; }
+
+    async function api(action, payload, needAuth) {
+      if (!state.url) throw new AppError('웹앱 주소가 없습니다. ⚙ 설정 > 시트 연결 안내에서 주소를 넣어 주세요.', 'NO_URL');
+      var body = Object.assign({ action: action }, payload || {});
+      if (needAuth !== false) {
+        if (!state.keys) throw new AppError('잠금을 먼저 풀어 주세요.', 'LOCKED_CLIENT');
+        body.auth = state.keys.auth;
+      }
+      var res, text;
+      try {
+        // text/plain 요청은 브라우저의 사전 확인(preflight) 없이 앱스크립트로 바로 전달됩니다.
+        res = await fetch(state.url, { method: 'POST', body: JSON.stringify(body), redirect: 'follow' });
+        text = await res.text();
+      } catch (e) {
+        throw new AppError('웹앱에 연결하지 못했습니다. 인터넷 연결과 웹앱 주소, 배포의 액세스 권한(모든 사용자)을 확인해 주세요.', 'NETWORK');
+      }
+      var data;
+      try { data = JSON.parse(text); } catch (e) {
+        throw new AppError('웹앱이 올바른 응답을 주지 않았습니다. 주소가 /exec로 끝나는지, 액세스 권한이 ‘모든 사용자’인지 확인해 주세요.', 'BAD_RESPONSE');
+      }
+      if (!data || data.ok !== true) {
+        var err = new AppError((data && data.error) || '요청을 처리하지 못했습니다.', data && data.code);
+        if (err.code === 'AUTH_FAILED' && action !== 'checkSetup' && state.keys) {
+          lockApp(true);
+          showLockError('비밀번호 확인이 필요합니다. 다시 입력해 주세요.');
+        }
+        throw err;
+      }
+      return data;
+    }
+
+    function normalizeUrl(u) {
+      u = String(u || '').trim();
+      var m = u.match(/^https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/s\/[A-Za-z0-9_-]+\/(?:exec|dev)/);
+      return m ? m[0].replace(/\/dev$/, '/exec') : '';
+    }
+
+    /* =========================================================
+     * 화면 전환
+     * ========================================================= */
+    function setView(name) {
+      show('view-lock', name === 'lock');
+      show('app-header', name !== 'lock');
+      show('view-main', name === 'main');
+      show('view-settings', name === 'settings');
+      show('brand-main', name === 'main');
+      show('brand-settings', name === 'settings');
+      show('btn-settings', name === 'main');
+      show('btn-lock', !!state.keys);
+      window.scrollTo(0, 0);
+    }
+
+    function setBadge(kind, text) {
+      var b = $('status-badge');
+      b.className = 'badge ' + (kind === 'ok' ? 'badge-ok' : kind === 'warn' ? 'badge-warn' : 'badge-wait');
+      b.textContent = text;
+    }
+
+    function showLockError(msg) {
+      $('lock-error').textContent = msg || '';
+      show('lock-error', !!msg);
+    }
+
+    /** 현재 상태에 맞는 잠금 화면을 보여 줍니다. */
+    function renderLock() {
+      state.inSettings = false;
+      setView('lock');
+      var mode = !state.url ? 'nourl' : !state.server ? 'error' : state.server.initialized ? 'unlock' : 'init';
+      show('lock-nourl', mode === 'nourl');
+      show('lock-init', mode === 'init');
+      show('lock-unlock', mode === 'unlock');
+      $('lock-desc').innerHTML = {
+        nourl: '처음 쓰시나요? 내 구글 스프레드시트와 연결해 주세요.',
+        init: '이 시트에서 쓸 비밀번호를 정해 주세요.<br>학생 이름은 이 비밀번호로 암호화되어 저장됩니다.',
+        unlock: '비밀번호를 입력하면 학생 이름이 보입니다.',
+        error: '웹앱에 연결하지 못했습니다.'
+      }[mode];
+      $('lock-conn').innerHTML = state.server ? '<span style="color:var(--ok);font-weight:700">연결 확인됨</span>' : (state.url ? '<span style="color:var(--warn);font-weight:700">확인 필요</span>' : '주소 없음');
+      if (mode === 'unlock') setTimeout(function () { $('unlock-pw').focus(); }, 50);
+      if (mode === 'init') setTimeout(function () { $('init-pw').focus(); }, 50);
+    }
+
+    /* =========================================================
+     * 시작
+     * ========================================================= */
+    async function boot() {
+      $('code-view').textContent = gsCode();
+      $('rec-date').value = nowLocalInput();
+      if (!cryptoReady()) {
+        setView('lock');
+        showLockError('이 브라우저에서는 암호화 기능을 쓸 수 없습니다. https 주소(예: 깃허브 페이지)에서 최신 크롬·엣지·사파리로 열어 주세요.');
+        return;
+      }
+      state.url = normalizeUrl(lsGet(LS_URL));
+      $('url-input').value = state.url;
+      if (!state.url) { renderLock(); return; }
+
+      await connect();
+      if (!state.server) { renderLock(); return; }
+
+      // ‘이 기기에서 기억하기’로 저장된 열쇠가 있으면 자동으로 엽니다.
+      var saved = readSession();
+      if (saved && state.server.initialized) {
+        try {
+          state.keys = await keysFromRaw(unb64(saved.aes), saved.auth);
+          await enterApp();
+          return;
+        } catch (e) {
+          state.keys = null;
+          lsDel(LS_SESSION);
+        }
+      }
+      renderLock();
+    }
+
+    async function connect() {
+      try {
+        var s = await api('status', {}, false);
+        if (s.app !== 'counseling-log') throw new AppError('이 주소는 상담 기록장 서버가 아닙니다. 코드를 확인해 주세요.', 'WRONG_APP');
+        state.server = s;
+        state.lastTestOk = true;
+        showLockError('');
+      } catch (e) {
+        state.server = null;
+        state.lastTestOk = false;
+        showLockError(e.message);
+      }
+    }
+
+    function readSession() {
+      try {
+        var s = JSON.parse(lsGet(LS_SESSION) || 'null');
+        return s && s.url === state.url && s.aes && /^[0-9a-f]{64}$/.test(s.auth) ? s : null;
+      } catch (e) { return null; }
+    }
+
+    async function handleInit(e) {
+      e.preventDefault();
+      var pw = $('init-pw').value, pw2 = $('init-pw2').value;
+      if (pw.length < 8) return showLockError('비밀번호는 8자 이상으로 정해 주세요.');
+      if (pw !== pw2) return showLockError('두 비밀번호가 서로 다릅니다.');
+      if (!$('init-agree').checked) return showLockError('안내를 확인하고 체크해 주세요.');
+      var btn = $('btn-init');
+      btn.disabled = true; btn.textContent = '설정하는 중…';
+      try {
+        var salt = b64(crypto.getRandomValues(new Uint8Array(16)));
+        var keys = await deriveKeys(pw, salt);
+        await api('init', { salt: salt, auth: keys.auth }, false);
+        state.keys = keys;
+        state.server.initialized = true;
+        state.server.salt = salt;
+        $('init-pw').value = ''; $('init-pw2').value = '';
+        await enterApp();
+        toast('비밀번호를 만들었습니다. ⚙ 설정에서 학생을 등록해 주세요.');
+        openSettings('students');
+      } catch (err) {
+        showLockError(err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = '비밀번호 만들고 시작하기';
+      }
+    }
+
+    async function handleUnlock(e) {
+      e.preventDefault();
+      var pw = $('unlock-pw').value;
+      if (!pw) return;
+      var btn = $('btn-unlock');
+      btn.disabled = true; btn.textContent = '여는 중…';
+      showLockError('');
+      try {
+        if (!state.server) await connect();
+        if (!state.server) return;
+        var keys = await deriveKeys(pw, state.server.salt);
+        state.keys = keys;
+        try {
+          await api('checkSetup', {});
+        } catch (err) {
+          state.keys = null;
+          throw err;
+        }
+        $('unlock-pw').value = '';
+        if ($('unlock-remember').checked) {
+          lsSet(LS_SESSION, JSON.stringify({ url: state.url, aes: b64(keys.aesRaw), auth: keys.auth }));
+        }
+        await enterApp();
+      } catch (err) {
+        showLockError(err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = '열기';
+      }
+    }
+
+    async function enterApp() {
+      $('url-result').innerHTML = '';
+      setBadge('ok', '시트 연결됨');
+      setView('main');
+      await loadStudents();
+      refreshChecklist(false);
+    }
+
+    function lockApp(silent) {
+      if (!silent && hasUnsaved() && !confirm('작성 중인 상담 내용이 저장되지 않았습니다. 잠글까요?')) return;
+      state.keys = null;
+      state.students = [];
+      state.records = {};
+      state.setup = null;
+      lsDel(LS_SESSION);
+      $('rec-content').value = '';
+      $('rec-note').value = '';
+      $('student-select').innerHTML = '';
+      $('student-list').innerHTML = '';
+      $('history-list').innerHTML = '';
+      renderLock();
+    }
+
+    function hasUnsaved() {
+      return !!($('rec-content').value.trim() || $('rec-note').value.trim());
+    }
+    window.addEventListener('beforeunload', function (e) {
+      if (state.keys && hasUnsaved()) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    /* =========================================================
+     * 학생
+     * ========================================================= */
+    function displayName(s) {
+      var p = [];
+      if (s.grade) p.push(s.grade + '학년');
+      if (s.classNum) p.push(s.classNum + '반');
+      if (s.number) p.push(s.number + '번');
+      p.push(s.name);
+      return p.join(' ');
+    }
+    function metaText(s) {
+      var p = [];
+      if (s.grade) p.push(s.grade + '학년');
+      if (s.classNum) p.push(s.classNum + '반');
+      if (s.number) p.push(s.number + '번');
+      return (p.length ? p.join(' ') : '학년·반 미입력') + ' · 기록 ' + (s.records || 0) + '건';
+    }
+    function numOr(v) { var n = parseInt(v, 10); return isNaN(n) ? 9999 : n; }
+    function sortStudents(list) {
+      return list.sort(function (a, b) {
+        return numOr(a.grade) - numOr(b.grade) || numOr(a.classNum) - numOr(b.classNum) || numOr(a.number) - numOr(b.number) || a.name.localeCompare(b.name, 'ko');
+      });
+    }
+    function findStudent(id) { return state.students.filter(function (s) { return s.id === id; })[0] || null; }
+    function activeStudents() { return state.students.filter(function (s) { return s.status !== '숨김'; }); }
+
+    async function loadStudents() {
+      try {
+        var res = await api('listStudents', {});
+        var list = [];
+        for (var i = 0; i < res.students.length; i++) {
+          var s = res.students[i];
+          var name = await decryptName(s.encName);
+          s.name = name === null ? '(이름 확인 불가)' : name;
+          s.broken = name === null;
+          list.push(s);
+        }
+        state.students = sortStudents(list);
+        renderStudentSelect();
+        renderStudentList();
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+
+    function renderStudentSelect() {
+      var sel = $('student-select');
+      var keep = sel.value;
+      var opts = '<option value="">학생을 선택하세요</option>' + activeStudents().map(function (s) {
+        return '<option value="' + esc(s.id) + '">' + esc(displayName(s)) + '</option>';
+      }).join('') + '<option value="__add">+ 새 학생 추가</option>';
+      sel.innerHTML = opts;
+      if (keep && findStudent(keep) && findStudent(keep).status !== '숨김') sel.value = keep;
+      else sel.value = '';
+      renderHistory();
+    }
+
+    function onStudentSelect() {
+      var v = $('student-select').value;
+      if (v === '__add') {
+        $('student-select').value = '';
+        openSettings('students');
+        setTimeout(function () { $('reg-name').focus(); }, 50);
+        return;
+      }
+      renderHistory();
+      if (v) loadRecords(v);
+    }
+
+    function renderStudentList() {
+      var active = activeStudents();
+      var hidden = state.students.filter(function (s) { return s.status === '숨김'; });
+      $('student-count').textContent = active.length + '명';
+      $('student-list').innerHTML = active.length ? active.map(function (s) {
+        return '<div class="student-item"><div><div class="student-name">' + esc(s.name) + '</div><div class="desc">' + esc(metaText(s)) + '</div></div>' +
+          '<div class="student-actions">' +
+          '<button class="btn btn-primary btn-sm" onclick="writeFor(\'' + esc(s.id) + '\')">상담 작성</button>' +
+          '<button class="btn btn-secondary btn-sm" onclick="openEdit(\'' + esc(s.id) + '\')">수정</button>' +
+          '<button class="btn btn-danger-line btn-sm" onclick="openDelete(\'' + esc(s.id) + '\')">삭제</button>' +
+          '</div></div>';
+      }).join('') : '<div class="empty">등록된 학생이 없습니다. 왼쪽에서 학생을 등록해 주세요.</div>';
+
+      show('hidden-toggle-wrap', hidden.length > 0);
+      $('hidden-toggle').textContent = (state.showHidden ? '숨긴 학생 접기' : '숨긴 학생 ' + hidden.length + '명 보기');
+      show('hidden-list', state.showHidden && hidden.length > 0);
+      $('hidden-list').innerHTML = hidden.map(function (s) {
+        return '<div class="student-item" style="padding-left:0;padding-right:0"><div><div class="student-name">' + esc(s.name) + '</div><div class="desc">' + esc(metaText(s)) + '</div></div>' +
+          '<div class="student-actions">' +
+          '<button class="btn btn-secondary btn-sm" onclick="unhide(\'' + esc(s.id) + '\')">다시 보이기</button>' +
+          '<button class="btn btn-danger-line btn-sm" onclick="openDelete(\'' + esc(s.id) + '\', true)">완전 삭제</button>' +
+          '</div></div>';
+      }).join('');
+    }
+
+    function toggleHidden() { state.showHidden = !state.showHidden; renderStudentList(); }
+
+    function readStudentForm(prefix) {
+      return {
+        name: $(prefix + '-name').value.trim(),
+        grade: $(prefix + '-grade').value.trim(),
+        classNum: $(prefix + '-class').value.trim(),
+        number: $(prefix + '-number').value.trim()
+      };
+    }
+
+    function duplicateOf(form, exceptId) {
+      var key = displayName(form);
+      return state.students.filter(function (s) { return s.id !== exceptId && displayName(s) === key; })[0] || null;
+    }
+
+    async function handleAddStudent(e) {
+      e.preventDefault();
+      var f = readStudentForm('reg');
+      if (!f.name) return toast('학생 이름을 입력해 주세요.', true);
+      var dup = duplicateOf(f, null);
+      if (dup) return toast('같은 학년·반·번호·이름의 학생이 이미 있습니다' + (dup.status === '숨김' ? ' (숨긴 학생)' : '') + '. 번호를 넣어 구분해 주세요.', true);
+      var btn = $('btn-add');
+      btn.disabled = true;
+      try {
+        var encName = await encryptName(f.name);
+        await api('addStudent', { encName: encName, grade: f.grade, classNum: f.classNum, number: f.number });
+        ['reg-name', 'reg-grade', 'reg-class', 'reg-number'].forEach(function (id) { $(id).value = ''; });
+        toast(displayName(f) + ' 학생을 등록했습니다.');
+        await loadStudents();
+        $('reg-name').focus();
+        refreshChecklist(false);
+      } catch (err) {
+        toast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function writeFor(id) {
+      closeSettings();
+      $('student-select').value = id;
+      onStudentSelect();
+      $('rec-content').focus();
+    }
+
+    function openModal(id) { show(id, true); }
+    function closeModal(id) { show(id, false); }
+
+    function openEdit(id) {
+      var s = findStudent(id);
+      if (!s) return;
+      state.editingId = id;
+      $('edit-name').value = s.broken ? '' : s.name;
+      $('edit-grade').value = s.grade || '';
+      $('edit-class').value = s.classNum || '';
+      $('edit-number').value = s.number || '';
+      openModal('modal-edit');
+      $('edit-name').focus();
+    }
+
+    async function handleEditStudent(e) {
+      e.preventDefault();
+      var f = readStudentForm('edit');
+      if (!f.name) return toast('학생 이름을 입력해 주세요.', true);
+      if (duplicateOf(f, state.editingId)) return toast('같은 학년·반·번호·이름의 학생이 이미 있습니다.', true);
+      var btn = $('btn-edit');
+      btn.disabled = true;
+      try {
+        var encName = await encryptName(f.name);
+        await api('updateStudent', { id: state.editingId, encName: encName, grade: f.grade, classNum: f.classNum, number: f.number });
+        closeModal('modal-edit');
+        toast('학생 정보를 수정했습니다.');
+        await loadStudents();
+      } catch (err) {
+        toast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function openDelete(id, deleteOnly) {
+      var s = findStudent(id);
+      if (!s) return;
+      state.deletingId = id;
+      $('delete-text').innerHTML = '<b>' + esc(displayName(s)) + '</b> 학생을 어떻게 할까요? (기록 ' + (s.records || 0) + '건)';
+      document.querySelector('input[name="delete-mode"][value="' + (deleteOnly ? 'delete' : 'hide') + '"]').checked = true;
+      document.querySelector('input[name="delete-mode"][value="hide"]').closest('label').classList.toggle('hidden', !!deleteOnly);
+      $('delete-confirm').checked = false;
+      onDeleteMode();
+      openModal('modal-delete');
+    }
+
+    function onDeleteMode() {
+      var del = document.querySelector('input[name="delete-mode"]:checked').value === 'delete';
+      show('delete-confirm-wrap', del);
+      $('btn-delete').textContent = del ? '완전히 삭제' : '숨기기';
+    }
+
+    async function confirmDelete() {
+      var del = document.querySelector('input[name="delete-mode"]:checked').value === 'delete';
+      if (del && !$('delete-confirm').checked) return toast('삭제 확인에 체크해 주세요.', true);
+      var id = state.deletingId;
+      var btn = $('btn-delete');
+      btn.disabled = true;
+      try {
+        if (del) await api('deleteStudent', { id: id });
+        else await api('setStudentStatus', { id: id, status: '숨김' });
+        closeModal('modal-delete');
+        delete state.records[id];
+        toast(del ? '학생과 기록을 삭제했습니다.' : '학생을 목록에서 숨겼습니다. 기록은 보관됩니다.');
+        await loadStudents();
+        refreshChecklist(false);
+      } catch (err) {
+        toast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function unhide(id) {
+      try {
+        await api('setStudentStatus', { id: id, status: '활성' });
+        toast('학생을 다시 목록에 보이게 했습니다.');
+        await loadStudents();
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeModal('modal-edit'); closeModal('modal-delete'); }
+    });
+    document.querySelectorAll('.modal-back').forEach(function (m) {
+      m.addEventListener('click', function (e) { if (e.target === m) m.classList.add('hidden'); });
+    });
+
+    /* =========================================================
+     * 상담 기록
+     * ========================================================= */
+    async function loadRecords(id) {
+      $('history-list').innerHTML = '<div class="empty">불러오는 중…</div>';
+      try {
+        var res = await api('getRecords', { studentId: id, limit: 100 });
+        state.records[id] = { list: res.records, total: res.total };
+        if ($('student-select').value === id) renderHistory();
+      } catch (err) {
+        if ($('student-select').value === id) $('history-list').innerHTML = '<div class="notice notice-danger">' + esc(err.message) + '</div>';
+      }
+    }
+
+    function renderHistory() {
+      var id = $('student-select').value;
+      var s = id && findStudent(id);
+      if (!s) {
+        $('history-title').textContent = '상담 기록';
+        $('history-desc').textContent = '학생을 선택하면 기록이 보입니다.';
+        $('history-count').textContent = '0건';
+        $('history-list').innerHTML = '<div class="empty">학생을 선택해 주세요.</div>';
+        return;
+      }
+      $('history-title').textContent = s.name + ' 상담 기록';
+      $('history-desc').textContent = '최신순';
+      var data = state.records[id];
+      if (!data) return;
+      $('history-count').textContent = data.total + '건';
+      if (!data.list.length) {
+        $('history-list').innerHTML = '<div class="empty">아직 기록이 없습니다.</div>';
+        return;
+      }
+      $('history-list').innerHTML = data.list.map(function (r) {
+        var when = [formatDate(r.date || r.savedAt), r.method, r.time].filter(Boolean).join(' · ');
+        var tagCls = r.target === '학부모' ? 'tag-parent' : r.target === '학생' ? 'tag-student' : '';
+        return '<article class="record">' +
+          '<div class="record-top"><span class="record-when">' + esc(when) + '</span>' + (r.target ? '<span class="tag ' + tagCls + '">' + esc(r.target) + '</span>' : '') + '</div>' +
+          '<p class="record-content">' + esc(r.content) + '</p>' +
+          (r.note ? '<p class="record-note">비고: ' + esc(r.note) + '</p>' : '') +
+          '</article>';
+      }).join('') + (data.total > data.list.length ? '<p class="help" style="text-align:center">최근 ' + data.list.length + '건만 보입니다. 전체는 스프레드시트에서 볼 수 있습니다.</p>' : '');
+    }
+
+    function formatDate(s) {
+      var m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+      if (!m) return s || '';
+      return m[1] + '년 ' + Number(m[2]) + '월 ' + Number(m[3]) + '일 ' + m[4] + ':' + m[5];
+    }
+
+    async function saveRecord() {
+      if (state.saving) return;
+      var id = $('student-select').value;
+      if (!id || id === '__add') return toast('학생을 선택해 주세요.', true);
+      var content = $('rec-content').value.trim();
+      if (!content) { $('rec-content').focus(); return toast('상담 내용을 입력해 주세요.', true); }
+      var record = {
+        id: state.recordId,
+        date: ($('rec-date').value || nowLocalInput()).replace('T', ' '),
+        target: $('rec-target').value,
+        method: $('rec-method').value,
+        time: $('rec-time').value.trim(),
+        content: content,
+        note: $('rec-note').value.trim()
+      };
+      state.saving = true;
+      var btn = $('btn-save');
+      btn.disabled = true; btn.textContent = '저장하는 중…';
+      try {
+        await api('saveRecord', { studentId: id, record: record });
+        state.recordId = newRecordId();
+        $('rec-content').value = '';
+        $('rec-note').value = '';
+        $('rec-time').value = '';
+        $('rec-date').value = nowLocalInput();
+        var s = findStudent(id);
+        if (s) s.records = (s.records || 0) + 1;
+        toast('저장했습니다.');
+        await loadRecords(id);
+      } catch (err) {
+        // 같은 기록ID로 다시 보내므로, 재시도해도 두 번 저장되지 않습니다.
+        toast('저장하지 못했습니다. ' + err.message, true);
+      } finally {
+        state.saving = false;
+        btn.disabled = false; btn.textContent = '저장';
+      }
+    }
+
+    /* =========================================================
+     * 설정
+     * ========================================================= */
+    function openSettings(tab) {
+      state.inSettings = true;
+      setView('settings');
+      $('back-label').textContent = state.keys ? '상담 기록으로' : '처음 화면으로';
+      showSettingsTab(tab || (state.keys ? 'students' : 'connect'));
+    }
+
+    function closeSettings() {
+      state.inSettings = false;
+      if (state.keys) setView('main'); else renderLock();
+    }
+
+    function showSettingsTab(tab) {
+      state.settingsTab = tab;
+      $('tab-students').setAttribute('aria-selected', String(tab === 'students'));
+      $('tab-connect').setAttribute('aria-selected', String(tab === 'connect'));
+      show('panel-students', tab === 'students');
+      show('panel-connect', tab === 'connect');
+      show('students-locked', !state.keys);
+      show('students-ui', !!state.keys);
+      if (tab === 'connect') refreshChecklist(false);
+    }
+
+    async function handleSaveUrl(e) {
+      e.preventDefault();
+      var url = normalizeUrl($('url-input').value);
+      var box = $('url-result');
+      if (!url) {
+        box.innerHTML = '<div class="notice notice-danger">주소 형식이 맞지 않습니다. https://script.google.com/macros/s/…/exec 형태의 주소를 넣어 주세요.</div>';
+        return;
+      }
+      var btn = $('btn-url');
+      btn.disabled = true; btn.textContent = '확인하는 중…';
+      var changed = url !== state.url;
+      if (changed && state.keys) lockApp(true), openSettings('connect');
+      state.url = url;
+      $('url-input').value = url;
+      await connect();
+      btn.disabled = false; btn.textContent = '저장하고 연결 테스트';
+      if (state.server) {
+        lsSet(LS_URL, url);
+        box.innerHTML = '<div class="notice notice-ok">연결에 성공했습니다. ' + (state.server.initialized ? '이제 비밀번호로 잠금을 풀어 주세요.' : '이제 비밀번호를 정해 주세요.') +
+          (state.keys ? '' : ' <button type="button" class="link-btn" onclick="closeSettings()">' + (state.server.initialized ? '잠금 풀러 가기' : '비밀번호 정하러 가기') + '</button>') + '</div>';
+      } else {
+        box.innerHTML = '<div class="notice notice-danger">' + esc($('lock-error').textContent) + '</div>';
+      }
+      refreshChecklist(false);
+    }
+
+    async function refreshChecklist(force) {
+      if (state.keys) {
+        try { state.setup = await api('checkSetup', {}); } catch (e) { state.setup = null; }
+      }
+      if (force && state.url) await connect();
+      var s = state.setup;
+      var items = [
+        state.lastTestOk ? ['ok', '웹앱 연결', '연결 테스트에 성공했습니다.'] : ['need', '웹앱 연결', state.url ? '연결을 확인하지 못했습니다. 주소와 배포 설정을 확인해 주세요.' : '웹앱 주소를 넣고 연결 테스트를 해 주세요.'],
+        state.server && state.server.initialized ? ['ok', '비밀번호 설정', '비밀번호가 설정되어 있습니다.'] : ['need', '비밀번호 설정', '연결한 뒤 처음 화면에서 비밀번호를 정해 주세요.'],
+        s ? (s.studentCount > 0 ? ['ok', '학생 등록', '등록된 학생 ' + s.studentCount + '명' + (s.hiddenCount ? ' (숨김 ' + s.hiddenCount + '명)' : '')] : ['need', '학생 등록', '아직 등록된 학생이 없습니다.']) : ['need', '학생 등록', '잠금을 풀면 확인할 수 있습니다.'],
+        s ? (s.totalRecords > 0 ? ['ok', '저장 테스트', '저장된 기록이 ' + s.totalRecords + '건 있습니다.'] : ['need', '저장 테스트', '상담 기록을 한 번 저장해 보세요.']) : ['need', '저장 테스트', '잠금을 풀면 확인할 수 있습니다.']
+      ];
+      $('checklist').innerHTML = items.map(function (it) {
+        return '<li class="check-item"><span class="state ' + (it[0] === 'ok' ? 'state-ok">완료' : 'state-need">확인 필요') + '</span><div><b>' + esc(it[1]) + '</b><span class="d">' + esc(it[2]) + '</span></div></li>';
+      }).join('');
+
+      if (s) {
+        var warn = '';
+        if (!s.studentHeadersOk) warn += '<div class="notice notice-warn" style="margin-top:8px">‘학생목록’ 시트의 1행 제목이 바뀌어 있습니다. 앱이 다음 요청 때 다시 맞춥니다.</div>';
+        if (s.missingSheets) warn += '<div class="notice notice-warn" style="margin-top:8px">기록 시트가 없는 학생이 ' + s.missingSheets + '명 있습니다. 시트 이름을 바꾸거나 지우지 않았는지 확인해 주세요.</div>';
+        $('sheet-info').innerHTML = '<div class="kv"><span>스프레드시트</span><b>' + esc(s.spreadsheetName) + '</b></div>' +
+          '<div class="kv"><span>서버 코드 버전</span><span>' + esc(s.version) + '</span></div>' +
+          '<div class="btn-row" style="margin-top:10px"><a class="btn btn-secondary btn-sm" href="' + esc(s.spreadsheetUrl) + '" target="_blank" rel="noopener noreferrer">스프레드시트 열기</a></div>' + warn;
+      } else {
+        $('sheet-info').innerHTML = '<p class="help">잠금을 풀면 표시됩니다.</p>';
+      }
+      if (state.inSettings && state.keys) setBadge('ok', '시트 연결됨');
+    }
+
+    function gsCode() { return $('gs-code').textContent; }
+
+    function copyCode() {
+      var text = gsCode();
+      var done = function () { toast('앱스크립트 코드를 복사했습니다. Code.gs에 붙여 넣어 주세요.'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { toast('복사하지 못했습니다. ‘코드 직접 보기’에서 선택해 복사해 주세요.', true); }
+        document.body.removeChild(ta);
+      }
+    }
+
+    function forgetDevice() {
+      if (!confirm('이 기기에 저장된 웹앱 주소와 기억하기 정보를 지울까요? 시트의 기록은 지워지지 않습니다.')) return;
+      lsDel(LS_URL);
+      lsDel(LS_SESSION);
+      state.url = '';
+      state.server = null;
+      state.lastTestOk = null;
+      $('url-input').value = '';
+      $('url-result').innerHTML = '';
+      lockApp(true);
+      toast('이 기기의 연결 정보를 지웠습니다.');
+    }
+
+    boot();
+  </script>
+</body>
+</html>
